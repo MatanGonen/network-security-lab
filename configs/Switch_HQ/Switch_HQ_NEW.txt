@@ -1,0 +1,73 @@
+enable
+conf t
+no logging console
+no logging monitor
+hostname Switch_HQ_NEW
+
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+
+vlan 10
+ name INTERNAL
+
+vlan 20
+ name DMZ
+
+interface gi0/0
+ description TRUNK_TO_PALO_ETH1/1
+ switchport trunk encapsulation dot1q 
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ no shutdown
+
+interface gi0/1
+ description LAN_NET_ACCESS_VLAN10
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ no shutdown
+
+interface gi0/2
+ description DMZ_NET_ACCESS_VLAN20
+ switchport mode access
+ switchport access vlan 20
+ spanning-tree portfast
+ no shutdown
+!
+interface GigabitEthernet1/0
+ description MGMT
+ switchport access vlan 30
+ switchport mode access
+ media-type rj45
+ negotiation auto
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/1
+ description MGMT
+ switchport access vlan 30
+ switchport mode access
+ media-type rj45
+ negotiation auto
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/2
+ description MGMT
+ switchport access vlan 30
+ switchport mode access
+ media-type rj45
+ negotiation auto
+ spanning-tree portfast edge
+!
+interface vlan 30
+ ip address 192.168.230.133 255.255.255.0
+ no shut
+!
+
+end
+write memory

@@ -1,0 +1,35 @@
+enable
+conf t
+hostname R_ISP
+
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+
+no router ospf 1
+no ip route 0.0.0.0 0.0.0.0 172.16.0.2
+no logging console
+no logging monitor
+
+interface g0/0
+ description TO_PA_HQ_ETH1/2
+ ip address 10.0.0.1 255.255.255.252
+ no shutdown
+
+interface g0/1
+ description TO_PA_BRANCH_ETH1/2
+ ip address 10.0.0.5 255.255.255.252
+ no shutdown
+
+interface g0/2
+ description TO_NET_MGMT
+ ip address 192.168.230.132 255.255.255.0
+ no shutdown
+
+end
+write memory

@@ -1,0 +1,143 @@
+LINUX_LAN/DMZ/BRANCH/MGMT
+ip addr add 192.168.X0.10/24 dev eth0
+ip route add default via 192.168.X0.1
+ip route add 8.8.8.8/32 via 192.168.230.2 dev eth1
+ip route add 142.250.75.206/32 via 192.168.230.2 dev eth1
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+ip route add 151.101.2.132 via 192.168.230.2 dev eth1
+ip route add 151.101.66.132 via 192.168.230.2 dev eth1
+ip route add 151.101.130.132 via 192.168.230.2 dev eth1
+ip route add 151.101.194.132 via 192.168.230.2 dev eth1
+ip route add 69.67.183.100 via 192.168.230.2 dev eth1
+ip route add 104.26.6.89  via 192.168.230.2 dev eth1
+ip route add 104.26.7.89  via 192.168.230.2 dev eth1
+ip route add 172.67.73.216  via 192.168.230.2 dev eth1
+
+apk update
+apk add tcpdump iperf3 curl
+apk add iperf3 curl tcpdump 
+apk add curl tcpdump busybox-extras openssl net-tools
+apk add iputils
+apk add ethtool
+apk add iproute2-ss
+apk add nano
+apk add python3
+
+
+--------------------------------------------------------------------------------------------------------
+LINUX_LAN:
+cp /tmp/Lab-Untrust.pem /usr/local/share/ca-certificates/Lab-Untrust.crt
+cp /tmp/Lab-Trust.pem /usr/local/share/ca-certificates/Lab-Untrust.crt
+
+update-ca-certificates --fresh
+cat /tmp/Lab-Untrust.pem >> /etc/ssl/certs/ca-certificates.crt
+cat /tmp/Lab-Trust.pem >> /etc/ssl/certs/ca-certificates.crt
+
+VERIFY: 
+openssl x509 -in /tmp/Lab-Untrust.pem -noout -fingerprint | \
+  grep -f - /etc/ssl/certs/ca-certificates.crt || echo "NOT FOUND"
+openssl s_client -connect 192.168.20.10:443 </dev/null 2>/dev/null | grep -A2 "issuer"
+openssl s_client -connect 192.168.20.10:443 2>/dev/null | openssl x509 -noout -text | grep -A1 "Subject Alternative"
+
+curl -v https://192.168.20.10/
+
+
+
+*******WIRESHARK-TLS1.3-WITH ENC_KEY:
+# 1. נקה ישנים
+rm -f /tmp/tls_keys.pcap /tmp/sslkeys.log
+tcpdump -i eth0 -w /tmp/FILE_NAME.pcap 'tcp port 443' &
+SSLKEYLOGFILE=/tmp/sslkeys.log curl -v https://192.168.20.10/
+
+pkill tcpdump
+wait
+
+# 5. אמת שהמפתח לא ריק
+cat /tmp/sslkeys.log
+wc -l /tmp/sslkeys.log
+
+# הורד את שני הקבצים
+cp /tmp/FILE_NAME.pcap /tmp/
+cp /tmp/sslkeys.log /tmp/
+
+******ליישם את הקובץ של המפתח בWIRESHARK תחת TLS.
+
+--------------------------------------------------------------------------------------------------------
+LINUX_DMZ:
+python3 -m http.server 80 &
+
+OR:
+# צור cert
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=192.168.20.10" -addext "subjectAltName=IP:192.168.20.10"
+# הרצת השירות של HTTPS:
+openssl s_server -key key.pem -cert cert.pem -port 443 -HTTP 
+python3 -c "
+import http.server, ssl
+ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ctx.load_cert_chain('cert.pem','key.pem')
+s = http.server.HTTPServer(('',443), http.server.SimpleHTTPRequestHandler)
+s.socket = ctx.wrap_socket(s.socket, server_side=True)
+s.serve_forever()
+" &
+
+--------------------------------------------------------------------------------------------------------
+LINUX_BRANCH:
+python3 -m http.server 80 &
+iperf3 -s
+--------------------------------------------------------------------------------------------------------
+LINUX_MGMT:
+# התקן Python + Netmiko
+sed -i 's|#http://dl-cdn|http://dl-cdn|g' /etc/apk/repositories
+apk update
+apk add python3 py3-pip openssh-client
+pip3 install netmiko --break-system-packages
+
+
+cat >> /etc/ssh/ssh_config << 'EOF'
+Host 192.168.230.132
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.133
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+EOF
+
+
+--------------------------------------------------------------------------------------------------------
+
+EXTRA:
+
+vi /etc/network/interfaces
+Esc-:wq - enter
+/etc/init.d/networking restart
+ifdown eth0 && ifup eth0
+ip addr flush dev eth0
+ip addr flush dev eth1
+rc-service networking restart
+
+alpine:~# cat -e /etc/network/interfaces
+auto lo$
+iface lo inet loopback$
+$
+auto eth0$
+iface eth0 inet static$
+ address 192.168.10.10$
+ netmask 255.255.255.0$
+ gateway 192.168.10.1$
+$
+auto eth1$
+iface eth1 inet static$
+ address 192.168.230.69$
+ netmask 255.255.255.0$
+ gateway 192.168.230.2$
+$
+
+alpine:~# ip route
+default via 192.168.10.1 dev eth0  metric 1 onlink
+8.8.8.8 via 192.168.230.2 dev eth1
+192.168.10.0/24 dev eth0 scope link  src 192.168.10.10
+192.168.230.0/24 dev eth1 scope link  src 192.168.230.69
+
+--------------------------------------------------------------------------------------------------------
