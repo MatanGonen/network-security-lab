@@ -1,0 +1,231 @@
+----------------------------------------WEEK 1---------------------------------------------
+1--
+enable
+conf t
+hostname R1
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ 
+
+interface g0/0
+ description TO_PA_HQ_ETH1_2
+ ip address 10.0.0.1 255.255.255.252
+ ip ospf network point-to-point
+ no shutdown
+
+interface g0/1
+ description TO_R_ISP_G0_0
+ ip address 172.16.1.1 255.255.255.252
+ no shutdown
+
+interface g0/2
+ description EBGP_TO_R2_DIRECT
+ ip address 172.16.100.1 255.255.255.252
+ no shutdown
+ 
+ interface Loopback1
+ ip address 1.1.1.1 255.255.255.255
+
+ip route 0.0.0.0 0.0.0.0 Null0
+
+ip prefix-list MATCH_BRANCH permit 10.0.0.4/30
+ip prefix-list OSPF_ROUTES permit 10.10.10.0/30
+
+!
+route-map SET_LP permit 10
+ match ip address prefix-list MATCH_BRANCH
+ set local-preference 200
+!
+route-map SET_LP permit 20
+!
+route-map OSPF_TO_BGP permit 10
+ match ip address prefix-list OSPF_ROUTES
+!
+route-map PREPEND_TO_R2 permit 10
+ set as-path prepend 65001 65001 65001
+
+router bgp 65001
+ bgp router-id 1.1.1.1
+ neighbor 172.16.100.2 remote-as 65002
+ neighbor 172.16.100.2 description TO_R2_EBGP
+ neighbor 172.16.100.2 route-map SET_LP in
+ neighbor 172.16.1.2 remote-as 65003
+ neighbor 172.16.1.2 description TO_R_ISP_EBGP
+ neighbor 172.16.1.2 route-map SET_LP in
+ network 0.0.0.0
+ network 10.0.0.0 mask 255.255.255.252
+ no auto-summary
+ redistribute ospf 1 route-map OSPF_TO_BGP
+
+
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.0.0 0.0.0.3 area 0
+
+end
+
+write memory
+
+
+
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+conf t
+hostname R1
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ configure terminal
+
+ipv6 unicast-routing
+
+
+ip prefix-list MATCH_BRANCH permit 10.0.0.4/30
+ip prefix-list OSPF_ROUTES permit 10.10.10.0/30
+route-map SET_LP permit 10
+ match ip address prefix-list MATCH_BRANCH
+ set local-preference 200
+route-map SET_LP permit 20
+route-map OSPF_TO_BGP permit 10
+ match ip address prefix-list OSPF_ROUTES
+
+
+! Loopback for BGP RID + iBGP peering source
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ipv6 address 2001:DB8::1/128
+ ipv6 ospf 1 area 0
+
+! Interface changes
+interface g0/0
+ description TO_NET_MGMT
+ ip address 192.168.230.141 255.255.255.0
+ no shutdown
+
+interface g0/1
+ description TO_R_ISP_G0/0
+ ip address 172.16.1.1 255.255.255.252
+ no shutdown
+
+interface g0/2
+ description EBGP_TO_R2_DIRECT
+ ip address 172.16.100.1 255.255.255.252
+ no shutdown
+
+interface g0/3
+ description TO_R3_IBGP
+ ip address 10.1.1.1 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address 2001:DB8:1::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+interface g0/4
+ description TO_R5_IBGP
+ ip address 10.1.5.1 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address 2001:DB8:5::1/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+ip route 5.5.5.5 255.255.255.255 172.16.1.2
+
+! OSPF — Underlay for iBGP (Loopbacks reachable!)
+router ospf 1
+ router-id 1.1.1.1
+ network 1.1.1.1 0.0.0.0 area 0
+ network 10.1.1.0 0.0.0.3 area 0
+ network 10.1.5.0 0.0.0.3 area 0
+
+ipv6 router ospf 1
+ router-id 1.1.1.1
+
+
+! BGP — Full config
+router bgp 65001
+ bgp router-id 1.1.1.1
+ bgp log-neighbor-changes
+ no auto-summary
+ 
+ ! eBGP peers
+ neighbor 172.16.100.2 remote-as 65002
+ neighbor 172.16.100.2 description TO_R2_EBGP_DIRECT
+ neighbor 172.16.100.2 route-map SET_LP in
+ 
+ neighbor 172.16.1.2 remote-as 65003
+ neighbor 172.16.1.2 description TO_R_ISP_EBGP
+ neighbor 172.16.1.2 route-map SET_LP in
+ neighbor 5.5.5.5 remote-as 65003
+ neighbor 5.5.5.5 description EBGP_MULTIHOP_TO_RISP_LOOPBACK
+ neighbor 5.5.5.5 update-source Loopback0
+ neighbor 5.5.5.5 ebgp-multihop 2
+ neighbor 5.5.5.5 route-map SET_LP in
+ 
+ 
+ ! iBGP peer to R3 — using Loopback as source
+ neighbor 3.3.3.3 remote-as 65001
+ neighbor 3.3.3.3 description IBGP_TO_R3
+ neighbor 3.3.3.3 update-source Loopback0
+ neighbor 3.3.3.3 next-hop-self
+ neighbor 3.3.3.3 route-reflector-client    
+
+  
+ ! Define peer-group
+ neighbor IBGP_CLIENTS peer-group 
+ neighbor IBGP_CLIENTS remote-as 65001
+ neighbor IBGP_CLIENTS update-source Loopback0
+ neighbor IBGP_CLIENTS next-hop-self
+ neighbor IBGP_CLIENTS route-reflector-client
+ neighbor IBGP_CLIENTS description IBGP_RR_CLIENT_GROUP
+ 
+  no neighbor 3.3.3.3 remote-as 65001
+ neighbor 3.3.3.3 peer-group IBGP_CLIENTS
+
+! R5
+ neighbor 1.1.1.5 peer-group IBGP_CLIENTS
+
+
+ ! Networks
+ network 0.0.0.0
+ network 1.1.1.1 mask 255.255.255.255
+ 
+ ! Aggregate address
+ aggregate-address 10.0.0.0 255.0.0.0 summary-only as-set
+ 
+ ! IPv6
+  
+ address-family ipv6 unicast
+  neighbor 2001:DB8::3 remote-as 65001
+  neighbor 2001:DB8::3 update-source Loopback0
+  neighbor 2001:DB8::3 next-hop-self
+  neighbor 2001:DB8::3 activate
+  network 2001:DB8::1/128
+  
+  neighbor 2001:DB8::5 remote-as 65001
+  neighbor 2001:DB8::5 update-source Loopback0
+  neighbor 2001:DB8::5 next-hop-self
+  neighbor 2001:DB8::5 route-reflector-client
+  neighbor 2001:DB8::5 activate
+ exit-address-family
+
+
+end
+write memory
+
+

@@ -1,0 +1,54 @@
+----------------------------------------WEEK 1---------------------------------------------
+1--
+enable
+conf t
+hostname R_ISP
+no logging console
+no logging monitor
+
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+
+interface g0/0
+ description TO_R1_G0_1
+ ip address 172.16.1.2 255.255.255.252
+ no shutdown
+
+interface g0/1
+ description TO_R2_G0_0
+ ip address 172.16.2.1 255.255.255.252
+ no shutdown
+ 
+interface g0/2
+ description TO_NET_MGMT
+ ip address 192.168.230.145 255.255.255.0
+ no shutdown
+
+interface Loopback0
+ ip address 5.5.5.5 255.255.255.255
+
+! Static route to R1's Loopback
+ip route 1.1.1.1 255.255.255.255 172.16.1.1
+
+
+router bgp 65003
+ bgp router-id 3.3.3.3
+ neighbor 172.16.1.1 remote-as 65001
+ neighbor 172.16.1.1 description TO_R1_EBGP
+ neighbor 172.16.2.2 remote-as 65002
+ neighbor 172.16.2.2 description TO_R2_EBGP
+ neighbor 1.1.1.1 remote-as 65001
+ neighbor 1.1.1.1 description EBGP_MULTIHOP_TO_R1_LOOPBACK
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 1.1.1.1 ebgp-multihop 2
+
+ no auto-summary
+
+end
+write memory

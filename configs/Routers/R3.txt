@@ -1,0 +1,90 @@
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+conf t
+hostname R3
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ configure terminal
+
+ipv6 unicast-routing
+
+
+interface Loopback0
+ ip address 3.3.3.3 255.255.255.255
+ ipv6 address 2001:DB8::3/128
+ ipv6 ospf 1 area 0
+
+
+interface g0/0
+ description TO_R1_IBGP
+ ip address 10.1.1.2 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address 2001:DB8:1::2/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+interface g0/1
+ description TO_PA_HQ_ETH1/2
+ ip address 10.0.0.1 255.255.255.252
+ ip ospf network point-to-point
+ no shutdown
+
+interface g0/2
+ description TO_NET_MGMT
+ ip address 192.168.230.143 255.255.255.0
+ no shutdown
+ 
+! OSPF — Underlay for iBGP
+router ospf 1
+ router-id 3.3.3.3
+ network 3.3.3.3 0.0.0.0 area 0
+ network 10.1.1.0 0.0.0.3 area 0
+ network 10.0.0.0 0.0.0.3 area 0
+
+! OSPFv3 for IPv6 underlay
+ipv6 router ospf 1
+ router-id 3.3.3.3
+
+! BGP — iBGP to R1 only
+router bgp 65001
+ bgp router-id 3.3.3.3
+ bgp log-neighbor-changes
+ no auto-summary
+ 
+ neighbor 1.1.1.1 remote-as 65001
+ neighbor 1.1.1.1 description IBGP_TO_R1
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 1.1.1.1 next-hop-self
+ 
+ network 3.3.3.3 mask 255.255.255.255
+ network 10.0.0.0 mask 255.255.255.252
+ 
+ redistribute ospf 1 route-map OSPF_TO_BGP
+
+ 
+ ! Activate neighbor in IPv6 AF
+ address-family ipv6 unicast
+  neighbor 2001:DB8::1 remote-as 65001
+  neighbor 2001:DB8::1 update-source Loopback0
+  neighbor 2001:DB8::1 next-hop-self
+  neighbor 2001:DB8::1 activate
+  
+  network 2001:DB8::3/128
+ exit-address-family
+
+
+ip prefix-list OSPF_ROUTES permit 10.10.10.0/30
+route-map OSPF_TO_BGP permit 10
+ match ip address prefix-list OSPF_ROUTES
+
+end
+write memory

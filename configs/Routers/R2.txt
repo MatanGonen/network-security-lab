@@ -1,0 +1,133 @@
+----------------------------------------WEEK 1---------------------------------------------
+1--
+enable
+conf t
+hostname R2
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ 
+interface g0/0
+ description TO_R_ISP_G0_1
+ ip address 172.16.2.2 255.255.255.252
+ no shutdown
+
+interface g0/1
+ description TO_PA_BRANCH_ETH1_2
+ ip address 10.0.0.5 255.255.255.252
+ no shutdown
+
+interface g0/2
+ description EBGP_TO_R1_DIRECT
+ ip address 172.16.100.2 255.255.255.252
+ no shutdown
+
+interface Loopback1
+ ip address 2.2.2.2 255.255.255.255
+
+route-map PREPEND_TO_R1 permit 10
+ set as-path prepend 65002 65002 65002
+ 
+router bgp 65002
+ bgp router-id 2.2.2.2
+ neighbor 172.16.100.1 remote-as 65001
+ neighbor 172.16.100.1 description TO_R1_EBGP
+ neighbor 172.16.2.1 remote-as 65003
+ neighbor 172.16.2.1 description TO_R_ISP_EBGP
+ no auto-summary
+ network 10.0.0.4 mask 255.255.255.252
+
+end
+write memory
+
+
+
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+conf t
+hostname R2
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ configure terminal
+
+no int lo1
+
+interface Loopback0
+ ip address 2.2.2.2 255.255.255.255
+no interface Loopback1
+
+interface g0/0
+ description TO_R_ISP_G0/1
+ ip address 172.16.2.2 255.255.255.252
+ no shutdown
+
+interface g0/1
+ description TO_NET_MGMT
+ ip address 192.168.230.142 255.255.255.0
+ no shutdown
+
+interface g0/2
+ description EBGP_TO_R1_DIRECT
+ ip address 172.16.100.2 255.255.255.252
+ no shutdown
+
+interface g0/3
+ description TO_R4_IBGP
+ ip address 10.2.2.1 255.255.255.252
+ ip ospf network point-to-point
+ no shutdown
+
+! OSPF Underlay
+router ospf 2
+ router-id 2.2.2.2
+ network 2.2.2.2 0.0.0.0 area 0
+ network 10.2.2.0 0.0.0.3 area 0
+
+! BGP Full config
+router bgp 65002
+ bgp router-id 2.2.2.2
+ bgp log-neighbor-changes
+ no auto-summary
+ neighbor 172.16.100.1 route-map PREPEND_TO_R1 out
+
+ 
+ ! eBGP peers
+ neighbor 172.16.100.1 remote-as 65001
+ neighbor 172.16.100.1 description TO_R1_EBGP_DIRECT
+ 
+ neighbor 172.16.2.1 remote-as 65003
+ neighbor 172.16.2.1 description TO_R_ISP_EBGP
+ 
+ ! iBGP to R4
+ neighbor 4.4.4.4 remote-as 65002
+ neighbor 4.4.4.4 description IBGP_TO_R4
+ neighbor 4.4.4.4 update-source Loopback0
+ neighbor 4.4.4.4 next-hop-self
+ 
+ network 2.2.2.2 mask 255.255.255.255
+ no network 10.0.0.4 mask 255.255.255.252
+
+route-map PREPEND_TO_R1 permit 10
+ set as-path prepend 65002 65002 65002
+
+end
+write memory
+
+
+

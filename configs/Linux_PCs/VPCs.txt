@@ -1,4 +1,4 @@
-LINUX_LAN/DMZ/BRANCH/MGMT
+LINUX_LAN/DMZ/BRANCH
 ip addr add 192.168.X0.10/24 dev eth0
 ip route add default via 192.168.X0.1
 ip route add 8.8.8.8/32 via 192.168.230.2 dev eth1
@@ -23,6 +23,12 @@ apk add iproute2-ss
 apk add nano
 apk add python3
 
+ethtool -K eth0 tx off
+ethtool -K eth0 rx off
+
+TO BRANCH PC:
+ip route delete default via 192.168.230.2
+ip route add default via 192.168.30.1
 
 --------------------------------------------------------------------------------------------------------
 LINUX_LAN:
@@ -44,7 +50,7 @@ curl -v https://192.168.20.10/
 
 
 *******WIRESHARK-TLS1.3-WITH ENC_KEY:
-# 1. נקה ישנים
+# 1.CLEANUP
 rm -f /tmp/tls_keys.pcap /tmp/sslkeys.log
 tcpdump -i eth0 -w /tmp/FILE_NAME.pcap 'tcp port 443' &
 SSLKEYLOGFILE=/tmp/sslkeys.log curl -v https://192.168.20.10/
@@ -52,11 +58,11 @@ SSLKEYLOGFILE=/tmp/sslkeys.log curl -v https://192.168.20.10/
 pkill tcpdump
 wait
 
-# 5. אמת שהמפתח לא ריק
+# 2. VERIFY KEY NOT EMPTY
 cat /tmp/sslkeys.log
 wc -l /tmp/sslkeys.log
 
-# הורד את שני הקבצים
+# DOWNLOAD PCAP
 cp /tmp/FILE_NAME.pcap /tmp/
 cp /tmp/sslkeys.log /tmp/
 
@@ -67,7 +73,7 @@ LINUX_DMZ:
 python3 -m http.server 80 &
 
 OR:
-# צור cert
+# יצירת cert
 openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=192.168.20.10" -addext "subjectAltName=IP:192.168.20.10"
 # הרצת השירות של HTTPS:
 openssl s_server -key key.pem -cert cert.pem -port 443 -HTTP 
@@ -86,22 +92,45 @@ python3 -m http.server 80 &
 iperf3 -s
 --------------------------------------------------------------------------------------------------------
 LINUX_MGMT:
-# התקן Python + Netmiko
+# התקנת Python + Netmiko
 sed -i 's|#http://dl-cdn|http://dl-cdn|g' /etc/apk/repositories
 apk update
 apk add python3 py3-pip openssh-client
 pip3 install netmiko --break-system-packages
 
+ip addr add 192.168.230.72/24 dev eth0
 
+# שינוי הגדרות SSH ב MGMT PC
 cat >> /etc/ssh/ssh_config << 'EOF'
-Host 192.168.230.132
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
 Host 192.168.230.133
     KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
     HostKeyAlgorithms +ssh-rsa
     PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.134
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.141
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.142
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.143
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.144
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+Host 192.168.230.145
+    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+
 EOF
 
 
@@ -141,3 +170,18 @@ default via 192.168.10.1 dev eth0  metric 1 onlink
 192.168.230.0/24 dev eth1 scope link  src 192.168.230.69
 
 --------------------------------------------------------------------------------------------------------
+
+
+VPC_LAN:
+ip 192.168.10.10/24 192.168.10.1
+save
+
+VPC_DMZ:
+ip 192.168.20.10/24 192.168.20.1
+save
+
+VPC_BRANCH:
+ip 192.168.30.10/24 192.168.30.1
+save
+
+

@@ -1,0 +1,75 @@
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+configure terminal
+
+hostname R5
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+
+! IPv6 routing
+ipv6 unicast-routing
+
+! Loopback
+interface Loopback0
+ ip address 1.1.1.5 255.255.255.255
+ ipv6 address 2001:DB8::5/128
+ ipv6 ospf 1 area 0
+
+! Interface to R1
+interface g0/0
+ description TO_R1_G0/4
+ ip address 10.1.5.2 255.255.255.252
+ ip ospf network point-to-point
+ ipv6 address 2001:DB8:5::2/64
+ ipv6 ospf 1 area 0
+ no shutdown
+
+! MGMT
+interface g0/1
+ description TO_NET_MGMT
+ ip address 192.168.230.146 255.255.255.0
+ no shutdown
+
+! OSPFv2 — Underlay לiBGP IPv4
+router ospf 1
+ router-id 1.1.1.5
+ network 1.1.1.5 0.0.0.0 area 0
+ network 10.1.5.0 0.0.0.3 area 0
+
+! OSPFv3 — Underlay לMP-BGP IPv6
+ipv6 router ospf 1
+ router-id 1.1.1.5
+
+! BGP — iBGP ל-R1 בלבד (R1 הוא RR, ישקף לR3)
+router bgp 65001
+ bgp router-id 1.1.1.5
+ bgp log-neighbor-changes
+ no auto-summary
+ 
+ ! iBGP ל-R1
+ neighbor 1.1.1.1 remote-as 65001
+ neighbor 1.1.1.1 description IBGP_TO_R1_RR
+ neighbor 1.1.1.1 update-source Loopback0
+ 
+ network 1.1.1.5 mask 255.255.255.255
+ 
+ ! MP-BGP IPv6
+ address-family ipv6 unicast
+  neighbor 2001:DB8::1 remote-as 65001
+  neighbor 2001:DB8::1 update-source Loopback0
+  neighbor 2001:DB8::1 activate
+  
+  network 2001:DB8::5/128
+ exit-address-family
+
+end
+write memory

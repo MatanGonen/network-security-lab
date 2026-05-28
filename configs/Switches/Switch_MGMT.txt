@@ -1,0 +1,43 @@
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+conf t
+no logging console
+no logging monitor
+hostname Switch_MGMT
+
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+!
+interface vlan 30
+ ip address 192.168.230.134 255.255.255.0
+ no shut
+!
+vlan 30
+name MGMT
+!
+interface range Gi0/0-3
+switchport mode access
+switchport access vlan 30
+
+interface range Gi1/0-3
+switchport mode access
+switchport access vlan 30
+
+interface range Gi2/0-3
+switchport mode access
+switchport access vlan 30
+
+interface range Gi3/0-3
+switchport mode access
+switchport access vlan 30
+
+
+end
+write

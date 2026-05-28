@@ -1,0 +1,56 @@
+----------------------------------------WEEK 1---------------------------------------------
+6--
+enable
+conf t
+hostname R4
+no logging console
+no logging monitor
+username admin privilege 15 secret admin
+ip domain-name lab.local
+crypto key generate rsa modulus 1024
+ip ssh ver 2
+line vty 0 15
+ login local
+ transport input ssh
+ transport output all
+ configure terminal
+
+interface Loopback0
+ ip address 4.4.4.4 255.255.255.255
+
+interface g0/0
+ description TO_R2_IBGP
+ ip address 10.2.2.2 255.255.255.252
+ ip ospf network point-to-point
+ no shutdown
+
+interface g0/1
+ description TO_PA_BRANCH_ETH1/2
+ ip address 10.0.0.5 255.255.255.252
+ no shutdown
+ 
+ interface g0/2
+ description TO_NET_MGMT
+ ip address 192.168.230.144 255.255.255.0
+ no shutdown
+
+router ospf 2
+ router-id 4.4.4.4
+ network 4.4.4.4 0.0.0.0 area 0
+ network 10.2.2.0 0.0.0.3 area 0
+
+router bgp 65002
+ bgp router-id 4.4.4.4
+ bgp log-neighbor-changes
+ no auto-summary
+ 
+ neighbor 2.2.2.2 remote-as 65002
+ neighbor 2.2.2.2 description IBGP_TO_R2
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 2.2.2.2 next-hop-self
+ 
+ network 4.4.4.4 mask 255.255.255.255
+ network 10.0.0.4 mask 255.255.255.252
+
+end
+write memory
