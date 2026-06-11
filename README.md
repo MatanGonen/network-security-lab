@@ -1,8 +1,8 @@
 # Enterprise Multi-Vendor Network Security Lab
 
-> A hybrid, multi-AS enterprise network built in EVE-NG — three BGP autonomous systems, an OSPF underlay, and a five-tunnel IPsec overlay spanning **Palo Alto, Check Point, and FortiGate**, plus a GlobalProtect remote-access VPN. Built end-to-end to demonstrate routing, firewall, and VPN engineering with an evidence-first troubleshooting methodology.
+> A hybrid, multi-AS enterprise network built in EVE-NG - three BGP autonomous systems, an OSPF underlay, and a five-tunnel IPsec overlay spanning **Palo Alto, Check Point, and FortiGate**, plus a GlobalProtect remote-access VPN. Built end-to-end to demonstrate routing, firewall, and VPN engineering with an evidence-first troubleshooting methodology.
 
-**Author:** Matan Gonen — Network & Security Specialist
+**Author:** Matan Gonen - Network & Security Specialist
 **LinkedIn:** [linkedin.com/in/matan-gonen](https://linkedin.com/in/matan-gonen)
 
 ---
@@ -12,7 +12,7 @@
 | Domain | Technologies |
 |--------|--------------|
 | **Firewalls** | Palo Alto PAN-OS 10.1 · Check Point R81 (T392) · FortiGate FortiOS 7.2 |
-| **Routing** | Cisco IOS 15.9 — BGP (eBGP/iBGP), OSPFv2/v3, Route Reflector, MP-BGP IPv6 |
+| **Routing** | Cisco IOS 15.9 - BGP (eBGP/iBGP), OSPFv2/v3, Route Reflector, MP-BGP IPv6 |
 | **VPN** | IPsec IKEv1 (site-to-site, multi-vendor) · GlobalProtect (remote access) |
 | **Analysis** | Wireshark · `fw monitor` · PA Packet Capture · FortiGate `diagnose sniffer`/`debug flow` |
 | **Automation / Mgmt** | Python + Netmiko (out-of-band jump host) · Git Bash |
@@ -22,11 +22,11 @@
 
 ## What This Lab Demonstrates
 
-- **Multi-AS BGP design** — three autonomous systems with eBGP peering, an iBGP core using a Route Reflector, and a full path-selection feature stack (Local Preference, AS-Path Prepending, aggregation, multihop, MP-BGP for IPv6).
-- **Multi-vendor firewall operations** — the same security and VPN concepts implemented on three different platforms, with a clear mapping of equivalent terminology and tooling across them.
+- **Multi-AS BGP design** - three autonomous systems with eBGP peering, an iBGP core using a Route Reflector, and a full path-selection feature stack (Local Preference, AS-Path Prepending, aggregation, multihop, MP-BGP for IPv6).
+- **Multi-vendor firewall operations** - the same security and VPN concepts implemented on three different platforms, with a clear mapping of equivalent terminology and tooling across them.
 - **A five-tunnel IPsec overlay** plus a GlobalProtect remote-access VPN, including a documented interoperability failure (Phase 2 traffic-selector mismatch) and its resolution.
-- **A repeatable troubleshooting methodology** — Routing → NAT → Firewall Policy → VPN → Packet Capture — backed by packet walks and dual-sided captures.
-- **Out-of-band management** — a dedicated management network and a Linux jump host for device access and automation.
+- **A repeatable troubleshooting methodology** - Routing → NAT → Firewall Policy → VPN → Packet Capture - backed by packet walks and dual-sided captures.
+- **Out-of-band management** - a dedicated management network and a Linux jump host for device access and automation.
 
 ---
 
@@ -36,14 +36,14 @@ The full topology diagram is in [`diagrams/NetSec_Lab_Topology.drawio`](diagrams
 
 ```
                         ┌─────────────────────────────┐
-                        │   AS 65003 — Transit ISP     │
+                        │   AS 65003 - Transit ISP     │
                         │   R_ISP  (Lo0 5.5.5.5)       │
                         └───────┬──────────────┬───────┘
                        eBGP    │              │   eBGP
               ┌─────────────────┘              └─────────────────┐
               │                                                   │
    ┌──────────┴───────────────┐                     ┌────────────┴──────────────┐
-   │   AS 65001 — HQ           │   eBGP (direct)     │   AS 65002 — Branch        │
+   │   AS 65001 - HQ           │   eBGP (direct)     │   AS 65002 - Branch        │
    │                           │◄───────────────────►│                            │
    │   R1 ★ Route Reflector    │                     │   R2 ──── R4               │
    │    ├── R3 (iBGP client)   │                     │            ├── PA_BRANCH    │
@@ -79,13 +79,13 @@ The full topology diagram is in [`diagrams/NetSec_Lab_Topology.drawio`](diagrams
 Implemented and verified in the lab:
 
 - **eBGP & iBGP** with loopback-sourced peering and `next-hop-self`
-- **Route Reflector** with two clients — verified via `Originator-ID` and `Cluster-List` attributes
+- **Route Reflector** with two clients - verified via `Originator-ID` and `Cluster-List` attributes
 - **Peer-groups** for scalable iBGP client configuration
 - **OSPFv2 / OSPFv3 underlay** providing loopback reachability for BGP and MP-BGP
 - **MP-BGP IPv6** unicast address family over the same iBGP sessions
-- **Route aggregation** — `aggregate-address 10.0.0.0/8 summary-only as-set` (AS_SET preserves loop prevention)
-- **Local Preference** — inbound route-map to prefer a specific path
-- **AS-Path Prepending** — outbound route-map to influence return-path selection
+- **Route aggregation** - `aggregate-address 10.0.0.0/8 summary-only as-set` (AS_SET preserves loop prevention)
+- **Local Preference** - inbound route-map to prefer a specific path
+- **AS-Path Prepending** - outbound route-map to influence return-path selection
 - **Best-path selection** demonstrated live (AS-Path length, then lowest neighbor address as final tiebreaker)
 
 ---
@@ -112,9 +112,9 @@ A client VPN on PA_HQ demonstrating remote-worker connectivity:
 - **Portal + Gateway** on the WAN interface, with self-signed CA and server certificates and an SSL/TLS service profile
 - **Local-database authentication**
 - **Client IP pool** `10.20.20.0/24`
-- **Split tunneling** — corporate subnets routed through the tunnel; collaboration apps (Zoom, Teams, YouTube) excluded so they egress locally
+- **Split tunneling** - corporate subnets routed through the tunnel; collaboration apps (Zoom, Teams, YouTube) excluded so they egress locally
 
-App-based split tunneling reduces gateway load — a practical pattern for scaling work-from-home access.
+App-based split tunneling reduces gateway load - a practical pattern for scaling work-from-home access.
 
 ---
 
@@ -135,17 +135,17 @@ Cross-vendor tooling used at each layer:
 | VPN status | `show vpn ipsec-sa` | `vpn tu` | `diagnose vpn tunnel list` |
 | Policy / drops | Traffic log | `fw ctl zdebug + drop` | `diagnose debug flow` |
 
-The **Check Point `fw monitor` four-stage model** (`i` pre-inbound, `I` post-inbound, `o` pre-outbound, `O` post-outbound) is a recurring anchor: a packet seen at `i` but not `I` is dropped on inbound inspection — the direct equivalent of a staged PA capture.
+The **Check Point `fw monitor` four-stage model** (`i` pre-inbound, `I` post-inbound, `o` pre-outbound, `O` post-outbound) is a recurring anchor: a packet seen at `i` but not `I` is dropped on inbound inspection - the direct equivalent of a staged PA capture.
 
 ---
 
 ## Golden Scenarios & Failure Library
 
-Each significant failure is documented as a reproducible case study — symptoms, investigation steps, packet evidence, root cause, fix, and a concise interview summary.
+Each significant failure is documented as a reproducible case study - symptoms, investigation steps, packet evidence, root cause, fix, and a concise interview summary.
 
 | ID | Scenario | Root Cause | Layer |
 |----|----------|-----------|-------|
-| **GS2** | PA ↔ Check Point VPN — Phase 1 up, Phase 2 down | Encryption Domain (`/16`) broader than PA Proxy-ID (`/24`) → Quick Mode traffic-selector mismatch | VPN / Phase 2 |
+| **GS2** | PA ↔ Check Point VPN - Phase 1 up, Phase 2 down | Encryption Domain (`/16`) broader than PA Proxy-ID (`/24`) → Quick Mode traffic-selector mismatch | VPN / Phase 2 |
 | **FL-BGP** | BGP session Established but no routes received | Outbound prefix-list silently filtered the advertisement | Routing / BGP |
 | **FL-MPBGP** | MP-BGP IPv6 session would not establish | Loopbacks not advertised into OSPFv3 → peers unreachable | Underlay / IPv6 |
 | **FL-MSS** | HTTP works over VPN, HTTPS hangs | TCP MSS + ESP overhead exceeded MTU → fragmentation dropped the large TLS certificate packet (fixed with MSS clamping) | VPN / MTU |
@@ -194,14 +194,14 @@ network-security-lab/
 
 ## Key Takeaways
 
-- The same IPsec concepts — IKE Phase 1, Phase 2 Quick Mode, and traffic selectors — apply across every vendor; only the terminology and CLI differ. Being able to map them is what makes multi-vendor troubleshooting fast.
+- The same IPsec concepts - IKE Phase 1, Phase 2 Quick Mode, and traffic selectors - apply across every vendor; only the terminology and CLI differ. Being able to map them is what makes multi-vendor troubleshooting fast.
 - BGP best-path selection is deterministic. Reading `show ip bgp <prefix>` and reasoning through the tiebreakers beats trial and error every time.
-- The underlay must converge before any overlay can work — a lesson learned firsthand when MP-BGP failed purely because loopbacks weren't in OSPFv3.
+- The underlay must converge before any overlay can work - a lesson learned firsthand when MP-BGP failed purely because loopbacks weren't in OSPFv3.
 - Good troubleshooting is evidence-driven: correlate routing table, firewall session, policy log, and packet capture before changing anything.
 
 ---
 
 ## Contact
 
-**Matan Gonen** — Network Security Specialist
+**Matan Gonen** - Network Security Specialist
 [linkedin.com/in/matan-gonen](https://linkedin.com/in/matan-gonen)
