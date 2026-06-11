@@ -203,5 +203,5 @@ network-security-lab/
 
 ## Contact
 
-**Matan Gonen** — Network & Security Specialist
+**Matan Gonen** — Network Security Specialist
 [linkedin.com/in/matan-gonen](https://linkedin.com/in/matan-gonen)
