@@ -1,12 +1,10 @@
-------------------WEEK 1-----------------
-1--
 enable
 conf t
 no logging console
 no logging monitor
 hostname Switch_HQ_NEW
 
-username admin privilege 15 secret admin
+username admin privilege 15 secret REDUCTED
 ip domain-name lab.local
 crypto key generate rsa modulus 1024
 ip ssh ver 2

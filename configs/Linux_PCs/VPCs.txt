@@ -1,187 +1,289 @@
-LINUX_LAN/DMZ/BRANCH
+# Lab Endpoints - Setup and Configuration
+
+Host configuration for every endpoint in the lab. Two endpoint types are used:
+
+- **Alpine Linux VMs** (`LINUX_*`) - full hosts used for traffic generation, packet capture, TLS testing, VPN-client testing, and out-of-band automation.
+- **VPCS nodes** (`VPC_*`) - lightweight nodes used where only basic L3 reachability is needed.
+
+Every Alpine host is dual-homed:
+
+- `eth0` - data-plane interface on its production subnet (`192.168.X0.0/24`).
+- `eth1` - out-of-band (OOB) management on `192.168.230.0/24`, which also provides Internet access through the EVE-NG gateway `192.168.230.2`.
+
+## Addressing
+
+| Host | Role | Data IP (`eth0`) | OOB Mgmt IP (`eth1`) | Data Gateway |
+|------|------|------------------|----------------------|--------------|
+| `LINUX_LAN` | SSL Forward Proxy client / traffic source | `192.168.10.10` | `192.168.230.69` | `192.168.10.1` |
+| `LINUX_DMZ` | HTTP / HTTPS target server | `192.168.20.10` | `192.168.230.70` | `192.168.20.1` |
+| `LINUX_BRANCH` | Remote-site host / GlobalProtect client | `192.168.30.10` | `192.168.230.71` | `192.168.30.1` |
+| `LINUX_CP_BRANCH` | Check Point branch host | - | `192.168.230.73` | - |
+| `LINUX_MGMT` | OOB jump host (Python + Netmiko) | - | `192.168.230.72` | - |
+
+> `X0` = `10` / `20` / `30` for LAN / DMZ / BRANCH.
+
+---
+
+## Common base (all Alpine endpoints)
+
+Interface, default route, DNS, and pinned host routes that send selected external services through the OOB Internet gateway:
+
+```bash
+# Data-plane interface (replace X0 with 10 / 20 / 30)
 ip addr add 192.168.X0.10/24 dev eth0
 ip route add default via 192.168.X0.1
-ip route add 8.8.8.8/32 via 192.168.230.2 dev eth1
-ip route add 142.250.75.206/32 via 192.168.230.2 dev eth1
+
+# Reach selected Internet services through the OOB gateway on eth1
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
-ip route add 151.101.2.132 via 192.168.230.2 dev eth1
-ip route add 151.101.66.132 via 192.168.230.2 dev eth1
-ip route add 151.101.130.132 via 192.168.230.2 dev eth1
-ip route add 151.101.194.132 via 192.168.230.2 dev eth1
-ip route add 69.67.183.100 via 192.168.230.2 dev eth1
-ip route add 104.26.6.89  via 192.168.230.2 dev eth1
-ip route add 104.26.7.89  via 192.168.230.2 dev eth1
-ip route add 172.67.73.216  via 192.168.230.2 dev eth1
+ip route add 8.8.8.8/32         via 192.168.230.2 dev eth1   # Google DNS
+ip route add 142.250.75.206/32  via 192.168.230.2 dev eth1   # external test targets
+ip route add 151.101.2.132/32   via 192.168.230.2 dev eth1
+ip route add 151.101.66.132/32  via 192.168.230.2 dev eth1
+ip route add 151.101.130.132/32 via 192.168.230.2 dev eth1
+ip route add 151.101.194.132/32 via 192.168.230.2 dev eth1
+ip route add 69.67.183.100/32   via 192.168.230.2 dev eth1
+ip route add 104.26.6.89/32     via 192.168.230.2 dev eth1
+ip route add 104.26.7.89/32     via 192.168.230.2 dev eth1
+ip route add 172.67.73.216/32   via 192.168.230.2 dev eth1
+```
 
+```bash
+# Tooling
 apk update
-apk add tcpdump iperf3 curl
-apk add iperf3 curl tcpdump 
-apk add curl tcpdump busybox-extras openssl net-tools
-apk add iputils
-apk add ethtool
-apk add iproute2-ss
-apk add nano
-apk add python3
+apk add tcpdump iperf3 curl openssl net-tools busybox-extras iputils ethtool iproute2-ss nano python3
 
+# Disable NIC checksum offload so captures show correct checksums on the virtual NIC
 ethtool -K eth0 tx off
 ethtool -K eth0 rx off
+```
 
-TO BRANCH PC:
-ip route delete default via 192.168.230.2
-ip route add default via 192.168.30.1
+---
 
---------------------------------------------------------------------------------------------------------
-LINUX_LAN:
+## LINUX_LAN - SSL Forward Proxy client
+
+Validates Palo Alto SSL Forward Proxy. The lab CA certificates are installed into the host trust store so `curl` and OpenSSL accept the firewall-resigned certificate (unlike a browser, `curl` has no "proceed anyway" path).
+
+```bash
+ip addr add 192.168.230.69/24 dev eth0   # if not already set
+
+# Install the lab CA certificates into the trust store
 cp /tmp/Lab-Untrust.pem /usr/local/share/ca-certificates/Lab-Untrust.crt
-cp /tmp/Lab-Trust.pem /usr/local/share/ca-certificates/Lab-Untrust.crt
-
+cp /tmp/Lab-Trust.pem   /usr/local/share/ca-certificates/Lab-Trust.crt
 update-ca-certificates --fresh
 cat /tmp/Lab-Untrust.pem >> /etc/ssl/certs/ca-certificates.crt
-cat /tmp/Lab-Trust.pem >> /etc/ssl/certs/ca-certificates.crt
+cat /tmp/Lab-Trust.pem   >> /etc/ssl/certs/ca-certificates.crt
+```
 
-VERIFY: 
+**Verify the certificate and the inspection path:**
+
+```bash
+# Confirm the CA is present in the trust bundle
 openssl x509 -in /tmp/Lab-Untrust.pem -noout -fingerprint | \
   grep -f - /etc/ssl/certs/ca-certificates.crt || echo "NOT FOUND"
+
+# Issuer should be the firewall CA, not the origin server - proof that inspection is active
 openssl s_client -connect 192.168.20.10:443 </dev/null 2>/dev/null | grep -A2 "issuer"
-openssl s_client -connect 192.168.20.10:443 2>/dev/null | openssl x509 -noout -text | grep -A1 "Subject Alternative"
+
+# Confirm the certificate carries a SAN
+openssl s_client -connect 192.168.20.10:443 2>/dev/null | \
+  openssl x509 -noout -text | grep -A1 "Subject Alternative"
 
 curl -v https://192.168.20.10/
+```
 
+**Capture and decrypt TLS 1.3 (key-log method):**
+TLS 1.3 encrypts the certificate inside the handshake, so Wireshark needs the session keys to decrypt it.
 
-
-*******WIRESHARK-TLS1.3-WITH ENC_KEY:
-# 1.CLEANUP
-rm -f /tmp/tls_keys.pcap /tmp/sslkeys.log
-tcpdump -i eth0 -w /tmp/FILE_NAME.pcap 'tcp port 443' &
+```bash
+rm -f /tmp/tls.pcap /tmp/sslkeys.log
+tcpdump -i eth0 -w /tmp/tls.pcap 'tcp port 443' &
 SSLKEYLOGFILE=/tmp/sslkeys.log curl -v https://192.168.20.10/
+pkill tcpdump; wait
 
-pkill tcpdump
-wait
-
-# 2. VERIFY KEY NOT EMPTY
+# Verify the key log captured session keys
 cat /tmp/sslkeys.log
 wc -l /tmp/sslkeys.log
+```
 
-# DOWNLOAD PCAP
-cp /tmp/FILE_NAME.pcap /tmp/
-cp /tmp/sslkeys.log /tmp/
+Load `sslkeys.log` in Wireshark under **Preferences > Protocols > TLS > (Pre)-Master-Secret log filename** to decrypt the capture.
 
-******ליישם את הקובץ של המפתח בWIRESHARK תחת TLS.
+---
 
---------------------------------------------------------------------------------------------------------
-LINUX_DMZ:
+## LINUX_DMZ - HTTP / HTTPS target server
+
+```bash
+ip addr add 192.168.230.70/24 dev eth0   # if not already set
+
+# Plain HTTP target
 python3 -m http.server 80 &
+```
 
-OR:
-# יצירת cert
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=192.168.20.10" -addext "subjectAltName=IP:192.168.20.10"
-# הרצת השירות של HTTPS:
-openssl s_server -key key.pem -cert cert.pem -port 443 -HTTP 
+**HTTPS target with a proper SAN certificate** (a certificate without a SAN fails modern client validation):
+
+```bash
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes \
+  -subj "/CN=192.168.20.10" -addext "subjectAltName=IP:192.168.20.10"
+```
+
+```bash
+# Option A - OpenSSL built-in HTTPS server
+openssl s_server -key key.pem -cert cert.pem -port 443 -HTTP
+```
+
+```bash
+# Option B - Python HTTPS server
 python3 -c "
 import http.server, ssl
 ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-ctx.load_cert_chain('cert.pem','key.pem')
-s = http.server.HTTPServer(('',443), http.server.SimpleHTTPRequestHandler)
+ctx.load_cert_chain('cert.pem', 'key.pem')
+s = http.server.HTTPServer(('', 443), http.server.SimpleHTTPRequestHandler)
 s.socket = ctx.wrap_socket(s.socket, server_side=True)
 s.serve_forever()
 " &
+```
 
---------------------------------------------------------------------------------------------------------
-LINUX_BRANCH:
+---
+
+## LINUX_BRANCH - remote-site host and GlobalProtect client
+
+The default route is sent through the branch firewall (not the OOB network) so return traffic stays symmetric:
+
+```bash
+ip addr add 192.168.230.71/24 dev eth0   # if not already set
+
+# Default route via the branch firewall, not the OOB interface
+ip route delete default via 192.168.230.2
+ip route add default via 192.168.30.1
+
 python3 -m http.server 80 &
 iperf3 -s
---------------------------------------------------------------------------------------------------------
-LINUX_MGMT:
-# התקנת Python + Netmiko
+```
+
+**GlobalProtect client test (openconnect):**
+The OpenSSL 3.x build in current Alpine blocks legacy TLS renegotiation, which the portal still uses, so an OpenSSL override is required.
+
+```bash
+# Enable the community repo and install the client
+sed -i '/community/s/^#//' /etc/apk/repositories
+sed -i 's/v3.18/v3.19/g' /etc/apk/repositories   # only if newer package versions are needed
+apk update && apk upgrade --available
+apk add openconnect xmlsec
+
+# Allow legacy renegotiation for this session
+printf '%s\n' \
+  'openssl_conf = default_conf' \
+  '[default_conf]' \
+  'ssl_conf = ssl_sect' \
+  '[ssl_sect]' \
+  'system_default = system_default_sect' \
+  '[system_default_sect]' \
+  'Options = UnsafeLegacyRenegotiation' > /tmp/bypass.cnf
+
+OPENSSL_CONF=/tmp/bypass.cnf openconnect -b --protocol=gp 10.0.0.2
+
+# Stop the client
+killall openconnect
+```
+
+---
+
+## LINUX_CP_BRANCH - Check Point branch host
+
+Only OOB reachability is required.
+
+```bash
+ip addr add 192.168.230.73/24 dev eth0
+```
+
+---
+
+## LINUX_MGMT - OOB jump host (Python + Netmiko)
+
+The automation jump host. Installs Netmiko and enables legacy SSH algorithms so it can reach the older Cisco IOS images.
+
+```bash
+ip addr add 192.168.230.72/24 dev eth0
+
+# Use the CDN mirror, then install Python + Netmiko
 sed -i 's|#http://dl-cdn|http://dl-cdn|g' /etc/apk/repositories
 apk update
 apk add python3 py3-pip openssh-client
 pip3 install netmiko --break-system-packages
+```
 
-ip addr add 192.168.230.72/24 dev eth0
+**Legacy SSH algorithms for the older IOS devices** - append to `/etc/ssh/ssh_config`:
 
-# שינוי הגדרות SSH ב MGMT PC
-cat >> /etc/ssh/ssh_config << 'EOF'
-Host 192.168.230.133
+```text
+Host 192.168.230.133 192.168.230.134 192.168.230.141 192.168.230.142 192.168.230.143 192.168.230.144 192.168.230.145
     KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
     HostKeyAlgorithms +ssh-rsa
     PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.134
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.141
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.142
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.143
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.144
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
-Host 192.168.230.145
-    KexAlgorithms +diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
-    HostKeyAlgorithms +ssh-rsa
-    PubkeyAcceptedAlgorithms +ssh-rsa
+```
 
-EOF
+---
 
+## Persistent network configuration (Alpine)
 
---------------------------------------------------------------------------------------------------------
+To persist addressing across reboots, define the interfaces in `/etc/network/interfaces` (LAN host shown):
 
-EXTRA:
+```text
+auto lo
+iface lo inet loopback
 
-vi /etc/network/interfaces
-Esc-:wq - enter
-/etc/init.d/networking restart
-ifdown eth0 && ifup eth0
-ip addr flush dev eth0
-ip addr flush dev eth1
+auto eth0
+iface eth0 inet static
+    address 192.168.10.10
+    netmask 255.255.255.0
+    gateway 192.168.10.1
+
+auto eth1
+iface eth1 inet static
+    address 192.168.230.69
+    netmask 255.255.255.0
+    gateway 192.168.230.2
+```
+
+Apply the configuration:
+
+```bash
 rc-service networking restart
+# or
+ifdown eth0 && ifup eth0
+```
 
-alpine:~# cat -e /etc/network/interfaces
-auto lo$
-iface lo inet loopback$
-$
-auto eth0$
-iface eth0 inet static$
- address 192.168.10.10$
- netmask 255.255.255.0$
- gateway 192.168.10.1$
-$
-auto eth1$
-iface eth1 inet static$
- address 192.168.230.69$
- netmask 255.255.255.0$
- gateway 192.168.230.2$
-$
+Resulting routing table:
 
-alpine:~# ip route
-default via 192.168.10.1 dev eth0  metric 1 onlink
+```text
+default via 192.168.10.1 dev eth0 metric 1 onlink
 8.8.8.8 via 192.168.230.2 dev eth1
-192.168.10.0/24 dev eth0 scope link  src 192.168.10.10
-192.168.230.0/24 dev eth1 scope link  src 192.168.230.69
+192.168.10.0/24 dev eth0 scope link src 192.168.10.10
+192.168.230.0/24 dev eth1 scope link src 192.168.230.69
+```
 
---------------------------------------------------------------------------------------------------------
+---
 
+## VPCS nodes (lightweight)
 
-VPC_LAN:
+For VPCS-based endpoints, set the address and gateway, then save:
+
+```text
+# VPC_LAN
 ip 192.168.10.10/24 192.168.10.1
 save
 
-VPC_DMZ:
+# VPC_DMZ
 ip 192.168.20.10/24 192.168.20.1
 save
 
-VPC_BRANCH:
+# VPC_PA_BRANCH
 ip 192.168.30.10/24 192.168.30.1
 save
 
+# VPC_CP_BRANCH
+ip 192.168.50.10/24 192.168.30.1
+save
 
+# VPC_FGT2_BRANCH
+ip 192.168.60.10/24 192.168.30.1
+save
+```

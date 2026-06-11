@@ -1,89 +1,9 @@
-----------------------------------------WEEK 1---------------------------------------------
-1--
 enable
 conf t
 hostname R1
 no logging console
 no logging monitor
-username admin privilege 15 secret admin
-ip domain-name lab.local
-crypto key generate rsa modulus 1024
-ip ssh ver 2
-line vty 0 15
- login local
- transport input ssh
- transport output all
- 
-
-interface g0/0
- description TO_PA_HQ_ETH1_2
- ip address 10.0.0.1 255.255.255.252
- ip ospf network point-to-point
- no shutdown
-
-interface g0/1
- description TO_R_ISP_G0_0
- ip address 172.16.1.1 255.255.255.252
- no shutdown
-
-interface g0/2
- description EBGP_TO_R2_DIRECT
- ip address 172.16.100.1 255.255.255.252
- no shutdown
- 
- interface Loopback1
- ip address 1.1.1.1 255.255.255.255
-
-ip route 0.0.0.0 0.0.0.0 Null0
-
-ip prefix-list MATCH_BRANCH permit 10.0.0.4/30
-ip prefix-list OSPF_ROUTES permit 10.10.10.0/30
-
-!
-route-map SET_LP permit 10
- match ip address prefix-list MATCH_BRANCH
- set local-preference 200
-!
-route-map SET_LP permit 20
-!
-route-map OSPF_TO_BGP permit 10
- match ip address prefix-list OSPF_ROUTES
-!
-route-map PREPEND_TO_R2 permit 10
- set as-path prepend 65001 65001 65001
-
-router bgp 65001
- bgp router-id 1.1.1.1
- neighbor 172.16.100.2 remote-as 65002
- neighbor 172.16.100.2 description TO_R2_EBGP
- neighbor 172.16.100.2 route-map SET_LP in
- neighbor 172.16.1.2 remote-as 65003
- neighbor 172.16.1.2 description TO_R_ISP_EBGP
- neighbor 172.16.1.2 route-map SET_LP in
- network 0.0.0.0
- network 10.0.0.0 mask 255.255.255.252
- no auto-summary
- redistribute ospf 1 route-map OSPF_TO_BGP
-
-
-router ospf 1
- router-id 1.1.1.1
- network 10.0.0.0 0.0.0.3 area 0
-
-end
-
-write memory
-
-
-
-----------------------------------------WEEK 1---------------------------------------------
-6--
-enable
-conf t
-hostname R1
-no logging console
-no logging monitor
-username admin privilege 15 secret admin
+username admin privilege 15 secret REDUCTED
 ip domain-name lab.local
 crypto key generate rsa modulus 1024
 ip ssh ver 2
@@ -194,7 +114,9 @@ router bgp 65001
  neighbor IBGP_CLIENTS route-reflector-client
  neighbor IBGP_CLIENTS description IBGP_RR_CLIENT_GROUP
  
-  no neighbor 3.3.3.3 remote-as 65001
+ ! Apply to R3 (replaces individual config)
+ ! First remove individual neighbor — won't work, need to recreate as group member
+ no neighbor 3.3.3.3 remote-as 65001
  neighbor 3.3.3.3 peer-group IBGP_CLIENTS
 
 ! R5

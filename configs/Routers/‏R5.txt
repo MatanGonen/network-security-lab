@@ -1,12 +1,10 @@
-----------------------------------------WEEK 1---------------------------------------------
-6--
-enable
+REDUCTEDenable
 configure terminal
 
 hostname R5
 no logging console
 no logging monitor
-username admin privilege 15 secret admin
+username admin privilege 15 secret REDUCTED
 ip domain-name lab.local
 crypto key generate rsa modulus 1024
 ip ssh ver 2
@@ -24,7 +22,7 @@ interface Loopback0
  ipv6 address 2001:DB8::5/128
  ipv6 ospf 1 area 0
 
-! Interface to R1
+! Interface ל-R1
 interface g0/0
  description TO_R1_G0/4
  ip address 10.1.5.2 255.255.255.252
@@ -38,6 +36,15 @@ interface g0/1
  description TO_NET_MGMT
  ip address 192.168.230.146 255.255.255.0
  no shutdown
+
+! FORTI
+interface g0/2
+ description TO_FGT1
+ ip address 10.0.0.13 255.255.255.252
+ no shutdown
+
+ip route 192.168.50.0 255.255.255.0 10.0.0.14
+
 
 ! OSPFv2 — Underlay לiBGP IPv4
 router ospf 1
@@ -61,7 +68,8 @@ router bgp 65001
  neighbor 1.1.1.1 update-source Loopback0
  
  network 1.1.1.5 mask 255.255.255.255
- 
+ network 10.0.0.12 mask 255.255.255.252
+ network 192.168.50.0 mask 255.255.255.0
  ! MP-BGP IPv6
  address-family ipv6 unicast
   neighbor 2001:DB8::1 remote-as 65001

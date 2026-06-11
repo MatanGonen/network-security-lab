@@ -1,0 +1,183 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="NetSec Lab Topology" id="gj14fYj5NFowbf_zKsPR">
+    <mxGraphModel dx="1581" dy="777" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-1" parent="1" style="text;html=1;fontSize=16;fontStyle=1;align=left;fontColor=#1F2D3D;verticalAlign=middle;" value="NetSec Multi-Vendor Lab  —  Matan Gonen  |  3×AS BGP Fabric + IPsec Overlay (PA / Check Point / FortiGate)  +  GlobalProtect" vertex="1">
+          <mxGeometry height="30" width="1660" x="40" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#2E7D32;strokeWidth=2;verticalAlign=top;fontSize=16;fontStyle=1;fontColor=#2E7D32;arcSize=2;opacity=60;" value="AS 65003  —  Transit ISP" vertex="1">
+          <mxGeometry height="150" width="360" x="660" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#1565C0;strokeWidth=2;verticalAlign=top;fontSize=16;fontStyle=1;fontColor=#1565C0;arcSize=2;opacity=60;" value="AS 65001  —  HQ  (R1 = Route Reflector)" vertex="1">
+          <mxGeometry height="730" width="690" x="40" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B23B3B;strokeWidth=2;verticalAlign=top;fontSize=16;fontStyle=1;fontColor=#B23B3B;arcSize=2;opacity=60;" value="AS 65002  —  Branch" vertex="1">
+          <mxGeometry height="640" width="650" x="1075" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EEEEEE;strokeColor=#666666;strokeWidth=2;verticalAlign=top;fontSize=16;fontStyle=1;fontColor=#666666;arcSize=2;opacity=60;" value="Out-of-Band MGMT  —  192.168.230.0/24  (links omitted for clarity)" vertex="1">
+          <mxGeometry height="120" width="500" x="735" y="1025" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F6FC0;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="R_ISP&#xa;Lo0 5.5.5.5  •  RID 3.3.3.3&#xa;mgmt .145" vertex="1">
+          <mxGeometry height="70" width="150" x="780" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F6FC0;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="R5&#xa;Lo0 1.1.1.5 / 2001:db8::5&#xa;mgmt .146" vertex="1">
+          <mxGeometry height="70" width="150" x="90" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=3;fontSize=9;fontStyle=1;align=center;" value="R1  ★ RR&#xa;Lo0 1.1.1.1 / 2001:db8::1&#xa;mgmt .141" vertex="1">
+          <mxGeometry height="72" width="160" x="330" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F6FC0;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="R3&#xa;Lo0 3.3.3.3 / 2001:db8::3&#xa;mgmt .143" vertex="1">
+          <mxGeometry height="70" width="160" x="330" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="FortiGate_HQ_1&#xa;port2 WAN 10.0.0.14&#xa;port1 LAN 192.168.50.1&#xa;mgmt .100" vertex="1">
+          <mxGeometry height="82" width="170" x="80" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="PA_HQ  (PAN-OS 10.1)&#xa;eth1/2 WAN 10.0.0.2&#xa;INSIDE .10.1 / DMZ .20.1&#xa;tun1/2/3/4  •  mgmt" vertex="1">
+          <mxGeometry height="86" width="180" x="320" y="565" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="VPC_1&#xa;192.168.50.10" vertex="1">
+          <mxGeometry height="44" width="120" x="95" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="Switch_HQ_NEW&#xa;trunk VLAN10/20&#xa;mgmt .133" vertex="1">
+          <mxGeometry height="60" width="160" x="330" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="Linux_LAN&#xa;192.168.10.10&#xa;(VLAN10)" vertex="1">
+          <mxGeometry height="56" width="130" x="170" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="Linux_DMZ&#xa;192.168.20.10&#xa;(VLAN20)" vertex="1">
+          <mxGeometry height="56" width="130" x="360" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F6FC0;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="R2&#xa;Lo0 2.2.2.2  •  RID 2.2.2.2&#xa;mgmt .142" vertex="1">
+          <mxGeometry height="70" width="160" x="1130" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F6FC0;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="R4&#xa;Lo0 4.4.4.4  •  RID 4.4.4.4&#xa;mgmt .144" vertex="1">
+          <mxGeometry height="70" width="160" x="1360" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="FortiGate_BRANCH_2&#xa;port2 WAN 10.0.0.18&#xa;port1 LAN 192.168.60.1&#xa;mgmt .101" vertex="1">
+          <mxGeometry height="82" width="170" x="1540" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="Linux_BRANCH&#xa;192.168.30.10" vertex="1">
+          <mxGeometry height="44" width="130" x="1100" y="575" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="Linux_CP_Branch&#xa;192.168.40.10" vertex="1">
+          <mxGeometry height="44" width="140" x="1320" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="VPC_2&#xa;192.168.60.10" vertex="1">
+          <mxGeometry height="44" width="120" x="1560" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="Switch_MGMT&#xa;192.168.230.134" vertex="1">
+          <mxGeometry height="56" width="150" x="780" y="1065" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-25" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=1;fontSize=8;align=center;" value="Linux_MGMT&#xa;192.168.230.72&#xa;(Netmiko jump host)" vertex="1">
+          <mxGeometry height="56" width="170" x="980" y="1065" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;strokeWidth=2;dashed=1;fontSize=8;fontStyle=2;align=center;" value="Remote User&#xa;(GlobalProtect App)&#xa;IP pool 10.20.20.0/24" vertex="1">
+          <mxGeometry height="70" width="150" x="765" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-27" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-8" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;entryX=0.2;entryY=1;" target="_GYJhZDjXoBXmqyZ2bND-6" value="172.16.1.0/30&#xa;eBGP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-28" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-16" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;entryX=0.8;entryY=1;" target="_GYJhZDjXoBXmqyZ2bND-6" value="172.16.2.0/30&#xa;eBGP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-29" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-8" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.2;entryX=0;entryY=0.2;" target="_GYJhZDjXoBXmqyZ2bND-16" value="172.16.100.0/30&#xa;eBGP direct">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-30" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-8" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-9" value="10.1.1.0/30&#xa;2001:db8:1::/64&#xa;iBGP/OSPF/MP-BGP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-31" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-8" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.3;entryX=1;entryY=0.3;" target="_GYJhZDjXoBXmqyZ2bND-7" value="10.1.5.0/30&#xa;2001:db8:5::/64&#xa;iBGP RR-client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-32" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-16" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="_GYJhZDjXoBXmqyZ2bND-17" value="10.2.2.0/30&#xa;iBGP/OSPF">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-33" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-9" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-11" value="10.0.0.0/30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-34" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-7" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.4;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-10" value="10.0.0.12/30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-35" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-17" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.2;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-18" value="10.0.0.4/30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-36" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-17" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.4;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-19" value="10.0.0.8/30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-37" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-17" style="endArrow=none;html=1;strokeColor=#2D2D2D;strokeWidth=1.5;fontSize=8;fontColor=#0B3D66;labelBackgroundColor=#FFFFFF;exitX=0.9;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-20" value="10.0.0.16/30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-38" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-11" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-13" value="trunk&#xa;VLAN10/20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-39" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-13" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-14" value="VLAN10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-40" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-13" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.7;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-15" value="VLAN20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-41" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-10" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-12" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-42" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-18" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-21" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-43" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-19" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-22" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-44" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-20" style="endArrow=none;html=1;strokeColor=#666666;strokeWidth=1;fontSize=8;fontColor=#333333;labelBackgroundColor=#FFFFFF;exitX=0.3;exitY=1;entryX=0.5;entryY=0;" target="_GYJhZDjXoBXmqyZ2bND-23" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-45" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-8" style="endArrow=none;html=1;dashed=1;strokeColor=#7F5410;strokeWidth=2;fontSize=8;fontColor=#7F5410;fontStyle=2;labelBackgroundColor=#FFFFFF;exitX=0.7;exitY=0;entryX=0.4;entryY=1;" target="_GYJhZDjXoBXmqyZ2bND-6" value="eBGP MULTIHOP&#xa;Lo↔Lo (1.1.1.1↔5.5.5.5)&#xa;ebgp-multihop 2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-46" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-11" style="endArrow=none;dashed=1;html=1;strokeColor=#E8820C;strokeWidth=3;fontSize=8;fontStyle=1;fontColor=#E8820C;rounded=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;entryX=0;entryY=0.3;" target="_GYJhZDjXoBXmqyZ2bND-18" value="VPN tunnel.1&#xa;10.10.10.0/30&#xa;PA↔PA (IKEv1, PSK)&#xa;PID 10/20↔30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-47" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-11" style="endArrow=none;dashed=1;html=1;strokeColor=#9013A8;strokeWidth=3;fontSize=8;fontStyle=1;fontColor=#9013A8;rounded=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="_GYJhZDjXoBXmqyZ2bND-19" value="VPN tunnel.2&#xa;PA↔Check Point&#xa;192.168.10↔192.168.40&#xa;domain-based, DH2/PFS2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="608" />
+              <mxPoint x="870" y="530" />
+              <mxPoint x="1300" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-48" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-11" style="endArrow=none;dashed=1;html=1;strokeColor=#1BA1A1;strokeWidth=3;fontSize=8;fontStyle=1;fontColor=#1BA1A1;rounded=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.7;entryX=0;entryY=0.7;" target="_GYJhZDjXoBXmqyZ2bND-20" value="VPN tunnel.4&lt;br&gt;PA↔FortiGate&lt;br&gt;192.168.10↔192.168.60&lt;br&gt;DH14&amp;nbsp;">
+          <mxGeometry relative="1" x="-0.2226" y="5" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1020" y="625" />
+              <mxPoint x="1020" y="570" />
+              <mxPoint x="1540" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-49" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-10" style="endArrow=none;dashed=1;html=1;strokeColor=#B23B3B;strokeWidth=3;fontSize=8;fontStyle=1;fontColor=#B23B3B;rounded=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.85;" target="_GYJhZDjXoBXmqyZ2bND-20" value="VPN FGT↔FGT&#xa;192.168.50↔192.168.60&#xa;IKEv1 DH14">
+          <mxGeometry relative="1" x="0.0653" y="1" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1010" y="501" />
+              <mxPoint x="1010" y="560" />
+              <mxPoint x="1540" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-50" edge="1" parent="1" source="_GYJhZDjXoBXmqyZ2bND-26" style="endArrow=none;dashed=1;html=1;strokeColor=#3A9B3A;strokeWidth=3;fontSize=8;fontStyle=1;fontColor=#3A9B3A;rounded=1;edgeStyle=orthogonalEdgeStyle;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="_GYJhZDjXoBXmqyZ2bND-11" value="GlobalProtect RA-VPN&#xa;Portal+Gateway @10.0.0.2&#xa;split-tunnel + app-exclude">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#1F2D3D;strokeWidth=1.5;fontSize=9;align=left;verticalAlign=top;spacing=8;" value="LEGEND&#xa;━━━ Underlay (physical + BGP/OSPF)&#xa;┅┅┅ Overlay (IPsec VPN tunnels)&#xa;★ Route Reflector&#xa;&#xa;BGP: AS65001 (R1 RR + R3,R5 clients) · AS65002 (R2,R4) · AS65003 (R_ISP transit)&#xa;eBGP: R1↔R2 direct, R1↔R_ISP, R2↔R_ISP, R1↔R_ISP Lo (multihop)&#xa;iBGP: RR + peer-group + next-hop-self · Aggregate 10.0.0.0/8 summary-only as-set&#xa;Underlay IGP: OSPFv2 + OSPFv3 (MP-BGP IPv6 R1↔R3↔R5)&#xa;&#xa;VPN overlay: 5 tunnels across 3 vendors (PA / CP / FGT) + GlobalProtect RA-VPN" vertex="1">
+          <mxGeometry height="235" width="560" x="40" y="1025" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="CP_BRANCH  (R81 T392)&#xa;eth1 WAN 10.0.0.10&#xa;eth2 INSIDE 192.168.40.1&#xa;lo 10.200.0.1 (AWS sim)  •  mgmt .132" vertex="1">
+          <mxGeometry height="82" width="200" x="1300" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="_GYJhZDjXoBXmqyZ2bND-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=2;fontSize=9;fontStyle=1;align=center;" value="PA_BRANCH&lt;br&gt;eth1/2 WAN 10.0.0.6&lt;br&gt;eth1/1 LAN 192.168.30.1 • mgmt .131" vertex="1">
+          <mxGeometry height="72" width="165" x="1095" y="450" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
