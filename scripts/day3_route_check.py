@@ -29,7 +29,7 @@ try:
         device_type="cisco_ios",
         host="192.168.230.132",
         username="admin",
-        password="admin",
+        password="REDUCTED",
     )
     passed = check_routes(conn, ISP_CHECKS, "R_ISP")
     conn.disconnect()

@@ -7,7 +7,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host":        "192.168.230.133", 
         "username":    "admin",
-        "password":    "admin",
+        "password":    "REDUCTED",
         "command":     "show interfaces status",
     },
     {
@@ -15,7 +15,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.134",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": "show interfaces status",
     },
     {
@@ -23,7 +23,7 @@ DEVICES = [
         "device_type": "paloalto_panos",
         "host":        "192.168.230.130",   
         "username":    "admin",
-        "password":    "MatanGG!",
+        "password":    "REDUCTED",
         "command":     "show routing route",
     },
     {
@@ -31,7 +31,7 @@ DEVICES = [
         "device_type": "paloalto_panos",
         "host":        "192.168.230.131",  
         "username":    "admin",
-        "password":    "MatanGG!",
+        "password":    "REDUCTED",
         "command":     "show routing route",
     },
     {
@@ -39,7 +39,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.141",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": R_COMMAND,
     },
     {
@@ -47,7 +47,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.142",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": R_COMMAND,
     },
     {
@@ -55,7 +55,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.143",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": R_COMMAND,
     },
     {
@@ -63,7 +63,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.144",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": R_COMMAND,
     },
     {
@@ -71,7 +71,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host": "192.168.230.145",
         "username": "admin",
-        "password": "admin",
+        "password": "REDUCTED",
         "command": R_COMMAND,
     }
 ]

@@ -9,8 +9,8 @@ R_ISP_IP     = "192.168.230.132"
 PA_HQ_IP     = "192.168.230.130"
 PA_BRANCH_IP = "192.168.230.131"
 SSH_USER     = "admin"
-SSH_PASS     = "admin"
-PA_PASS      = "MatanGG!"
+SSH_PASS     = "REDUCTED"
+PA_PASS      = "REDUCTED"
 
 PING_TARGETS = [
     ("Linux_DMZ",    "192.168.230.70"),

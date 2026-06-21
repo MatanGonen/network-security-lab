@@ -7,7 +7,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host":        "192.168.230.132",
         "username":    "admin",
-        "password":    "admin",
+        "password":    "REDUCTED",
         "command":     "show ip route",
     },
     {
@@ -15,7 +15,7 @@ DEVICES = [
         "device_type": "cisco_ios",
         "host":        "192.168.230.133", 
         "username":    "admin",
-        "password":    "admin",
+        "password":    "REDUCTED",
         "command":     "show interfaces status",
     },
     {
@@ -23,7 +23,7 @@ DEVICES = [
         "device_type": "paloalto_panos",
         "host":        "192.168.230.130",   
         "username":    "admin",
-        "password":    "MatanGG!",
+        "password":    "REDUCTED",
         "command":     "show routing route",
     },
     {
@@ -31,7 +31,7 @@ DEVICES = [
         "device_type": "paloalto_panos",
         "host":        "192.168.230.131",  
         "username":    "admin",
-        "password":    "MatanGG!",
+        "password":    "REDUCTED",
         "command":     "show routing route",
     },
 ]

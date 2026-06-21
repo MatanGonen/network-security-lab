@@ -9,7 +9,7 @@ def check_vpn(host, label):
             device_type="paloalto_panos",
             host=host,
             username="admin",
-            password="MatanGG!",
+            password="REDUCTED",
         )
 
         # Phase 1 - IKE SA

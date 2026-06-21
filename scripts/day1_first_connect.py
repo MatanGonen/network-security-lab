@@ -4,49 +4,49 @@ Router = {
     "device_type": "cisco_ios",   
     "host": "192.168.230.132",           
     "username": "admin",
-    "password": "admin",
+    "password": "REDUCTED",
     "port": 22,
 }
 Switch = {
     "device_type": "cisco_ios",    
     "host": "192.168.230.133",           
     "username": "admin",
-    "password": "admin",
+    "password": "REDUCTED",
     "port": 22,
 }
 PA_HQ = {
     "device_type": "paloalto_panos",    
     "host": "192.168.230.130", 
     "username": "admin",
-    "password": "MatanGG!",
+    "password": "REDUCTED",
     "port": 22,
 }
 PA_BRANCH = {
     "device_type": "paloalto_panos",    
     "host": "192.168.230.131",           
     "username": "admin",
-    "password": "MatanGG!",
+    "password": "REDUCTED",
     "port": 22,
 }
 LINUX_LAN = {
     "device_type": "linux",    
     "host": "192.168.230.69",
     "username": "root",
-    "password": "eve",
+    "password": "REDUCTED",
     "port": 22,
 }
 LINUX_DMZ = {
     "device_type": "linux",    
     "host": "192.168.230.70",
     "username": "root",
-    "password": "eve",
+    "password": "REDUCTED",
     "port": 22,
 }
 LINUX_BRANCH = {
     "device_type": "linux",    
     "host": "192.168.230.71",
     "username": "root",
-    "password": "eve",
+    "password": "REDUCTED",
     "port": 22,
 }
 
